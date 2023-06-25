@@ -1,6 +1,6 @@
 # node crash course
 
-**See the deploy here -->**  
+See the **deploy** clicking [here](https://nodes-scratch.onrender.com/)
 
 ## **fs**
 
