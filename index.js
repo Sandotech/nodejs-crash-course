@@ -2,8 +2,6 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
-const PORT = process.env.PORT || 5000;
-
 const server = http.createServer((req, res) => {
     // Build file path
     let filePath = path.join(__dirname, 'public', req.url === '/' 
@@ -34,26 +32,37 @@ const server = http.createServer((req, res) => {
             break;
     }
 
+    // Check if contentType is text/html but no .html file extension
+    if (contentType == "text/html" && extName == "") filePath += ".html";
+
+    // log the filePath
+    console.log(filePath);
+
     // Read File
     fs.readFile(filePath, (err, content) => {
-        if(err){
-            if(err.code == 'ENDENT'){
-                // PAGE NOT FOUND (XX400)
-                fs.readFile(path.join(__dirname, 'public', '404.html'), (err, content) => {
-                    res.writeHead(200, {'Content-Type': 'text/html'})
-                    res.end(content, 'utf8')
-                })
-            } else{
-                // Some server error
-                res.writeHead(500);
-                res.end(`Server Error: ${err.code}`)
+        if (err) {
+            if (err.code == "ENOENT") {
+            // Page not found
+            fs.readFile(
+                path.join(__dirname, "public", "404.html"),
+                (err, content) => {
+                res.writeHead(404, { "Content-Type": "text/html" });
+                res.end(content, "utf8");
+                }
+            );
+            } else {
+            //  Some server error
+            res.writeHead(500);
+            res.end(`Server Error: ${err.code}`);
             }
-        } else{
+        } else {
             // Success
-            res.writeHead(200, {'Content-Type': contentType});
-            res.end(content, 'utf8');
+            res.writeHead(200, { "Content-Type": contentType });
+            res.end(content, "utf8");
         }
-    })
+        });
 })
+
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
